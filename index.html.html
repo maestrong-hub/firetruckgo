@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>소방 출동 내비 v4 — 프리뷰</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#f0f0f0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+.phone{width:375px;background:#fff;border-radius:40px;border:8px solid #1a1a1a;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;}
+.notch{height:28px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;}
+.notch-pill{width:100px;height:10px;background:#fff;border-radius:5px;}
+.status{height:16px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:10px;color:#666;}
+.scr{display:none;flex-direction:column;min-height:680px;}
+.scr.on{display:flex;}
+.top{background:#fff;border-bottom:1px solid #eee;padding:12px 16px;display:flex;align-items:center;gap:10px;min-height:50px;}
+.top-t{font-size:16px;font-weight:600;color:#111;flex:1;}
+.body{flex:1;overflow-y:auto;background:#f5f5f5;padding:14px;}
+.tb{height:60px;background:#fff;border-top:1px solid #eee;display:flex;}
+.t{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;}
+.t i{font-size:22px;color:#ccc;}
+.t.on i{color:#D85A30;}
+.t span{font-size:10px;color:#ccc;}
+.t.on span{color:#D85A30;}
+.tp{font-size:18px;font-weight:700;color:#ccc;}
+.t.on .tp{color:#D85A30;}
+.dot{width:4px;height:4px;border-radius:50%;background:#D85A30;}
+.hero{display:flex;flex-direction:column;align-items:center;gap:14px;padding:30px 0 20px;}
+.fic{width:72px;height:72px;background:#FAECE7;border-radius:36px;display:flex;align-items:center;justify-content:center;}
+.fic i{font-size:36px;color:#D85A30;}
+.srow{display:flex;gap:10px;width:100%;}
+.sbox{flex:1;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:0 14px;height:50px;}
+.sbox i{font-size:18px;color:#bbb;}
+.sbox input{flex:1;border:none;outline:none;font-size:15px;color:#111;}
+.mbtn{width:50px;height:50px;background:#D85A30;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;flex-shrink:0;}
+.mbtn i{font-size:24px;color:#fff;}
+.mbtn.on{background:#b33a1a;}
+.gbtn{width:100%;background:#D85A30;border:none;border-radius:12px;height:50px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;}
+.rl{font-size:12px;color:#aaa;font-weight:600;margin-bottom:8px;}
+.ri{display:flex;align-items:center;gap:10px;background:#fff;padding:12px 14px;border-radius:10px;cursor:pointer;margin-bottom:2px;}
+.ri i{font-size:16px;color:#bbb;}
+.ri span{flex:1;font-size:14px;color:#333;}
+.card{background:#fff;border-radius:12px;border:1px solid #eee;padding:12px 14px;margin-bottom:8px;}
+.crow{display:flex;align-items:center;gap:10px;}
+.ico{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cb{flex:1;}
+.ct{font-size:14px;font-weight:600;color:#111;}
+.cs{font-size:12px;color:#888;margin-top:2px;}
+.cbtn{border:none;border-radius:8px;padding:8px 14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;}
+.rrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;}
+.rrow:last-child{border-bottom:none;}
+.rdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.rrow span{flex:1;font-size:13px;color:#333;}
+.bdg{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;}
+.ok{background:#e6f9ef;color:#0a6b3a;}
+.wn{background:#fff7e0;color:#7a4e00;}
+.dg{background:#fff0f0;color:#9a1a1a;}
+.map-mock{background:#d4e8d0;border-radius:10px;height:220px;position:relative;overflow:hidden;margin-bottom:10px;}
+.map-mock svg{width:100%;height:100%;}
+.infob{background:#E6F1FB;border-radius:10px;padding:10px 12px;font-size:12px;color:#0C447C;line-height:1.8;margin-top:6px;}
+.strow{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #f0f0f0;background:#fff;cursor:pointer;}
+.sticon{font-size:20px;width:28px;text-align:center;}
+.stb{flex:1;}
+.stl{font-size:15px;color:#111;}
+.sts{font-size:12px;color:#aaa;margin-top:2px;}
+.tog{width:44px;height:24px;border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.tog.on{background:#D85A30;}
+.tok{position:absolute;width:20px;height:20px;background:#fff;border-radius:10px;top:2px;left:2px;transition:left .2s;}
+.tog.on .tok{left:22px;}
+.tog:not(.on){background:#ddd;}
+.vsub{font-size:12px;color:#aaa;font-weight:600;padding:16px 20px 6px;letter-spacing:.5px;background:#f5f5f5;}
+.vcard{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#f8f8f8;border:1px solid #eee;border-radius:10px;cursor:pointer;margin-bottom:6px;}
+.erbtn{background:#E24B4A;border:none;border-radius:10px;padding:10px;width:100%;color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
+.listen{background:#FAECE7;border-radius:10px;padding:10px;text-align:center;font-size:13px;color:#D85A30;font-weight:600;display:none;width:100%;}
+.vbanner{background:#FAECE7;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:12px;color:#993C1D;border-radius:8px;margin-bottom:10px;}
+.phm{display:none;position:absolute;top:44px;left:0;right:0;bottom:0;background:#fff;z-index:10;flex-direction:column;border-radius:0 0 32px 32px;}
+.phm.on{display:flex;}
+.phgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px;}
+.phcard{background:#f5f5f5;border-radius:10px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;cursor:pointer;}
+.phcard i{font-size:28px;color:#bbb;}
+.phcard span{font-size:11px;color:#888;}
+.phadd{background:#fff;border-radius:10px;border:2px dashed #ddd;padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
+.phadd i{font-size:28px;color:#D85A30;}
+.phadd span{font-size:11px;color:#D85A30;}
+.grid-card{background:#E6F1FB;border-radius:12px;padding:14px;margin-bottom:8px;}
+.grid-code{font-size:18px;font-weight:700;color:#0C447C;}
+.grid-dist{font-size:12px;color:#185FA5;margin-top:4px;}
+.seg{display:flex;background:#f0f0f0;border-radius:8px;padding:2px;margin-bottom:10px;overflow-x:auto;}
+.si{flex-shrink:0;padding:6px 14px;border-radius:7px;font-size:12px;color:#888;cursor:pointer;}
+.si.on{background:#fff;color:#D85A30;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="notch"><div class="notch-pill"></div></div>
+  <div class="status"><span>9:41</span><span>●●● WiFi 🔋</span></div>
+
+  <!-- 탭1: 내비 -->
+  <div class="scr on" id="sc-navi">
+    <div class="top">
+      <i class="ti ti-firetruck" style="font-size:22px;color:#D85A30;"></i>
+      <span class="top-t">소방 출동 내비</span>
+      <button onclick="go('sc-set')" style="background:none;border:none;cursor:pointer;padding:4px;"><i class="ti ti-menu-2" style="font-size:22px;color:#888;"></i></button>
+    </div>
+    <div class="body" id="navi-body">
+      <div id="nh" class="hero">
+        <div class="fic"><i class="ti ti-firetruck"></i></div>
+        <div style="text-align:center;">
+          <div style="font-size:22px;font-weight:700;color:#111;margin-bottom:6px;">소방 출동 내비</div>
+          <div style="font-size:14px;color:#888;">주소 입력 또는 음성 검색</div>
+        </div>
+        <div class="srow">
+          <div class="sbox"><i class="ti ti-search"></i><input id="qi" type="text" placeholder="주소 입력 (건물, 산, 강...)" oninput="qi_fn()" onkeydown="if(event.key==='Enter')ds()"/></div>
+          <button class="mbtn" id="mb" onclick="tm()"><i class="ti ti-microphone"></i></button>
+        </div>
+        <div class="listen" id="lb">🎤 듣고 있어요... 주소를 말씀해주세요</div>
+        <button class="gbtn" id="gb" style="display:none;" onclick="ds()">이 주소로 경로 검색</button>
+        <div style="width:100%;">
+          <div class="rl">최근 검색</div>
+          <div id="rl"></div>
+        </div>
+      </div>
+
+      <div id="nr" style="display:none;flex-direction:column;gap:10px;">
+        <div class="vbanner">
+          <i class="ti ti-firetruck" style="font-size:16px;"></i>
+          <span id="vbt">펌프차 · 높이 3.6m · 폭 2.5m</span>
+          <button onclick="go('sc-set')" style="background:none;border:none;font-size:12px;color:#D85A30;cursor:pointer;margin-left:auto;font-weight:600;">변경</button>
+        </div>
+        <div class="map-mock">
+          <svg viewBox="0 0 347 220">
+            <rect width="347" height="220" fill="#d4e8d0"/>
+            <rect y="72" width="347" height="12" fill="rgba(255,255,255,.65)"/>
+            <rect y="148" width="347" height="12" fill="rgba(255,255,255,.65)"/>
+            <rect x="90" width="12" height="220" fill="rgba(255,255,255,.65)"/>
+            <rect x="196" width="12" height="220" fill="rgba(255,255,255,.65)"/>
+            <rect x="102" y="86" width="88" height="56" fill="#b0c4b0" rx="4" stroke="#7a9e7a" stroke-width="1"/>
+            <text x="146" y="119" text-anchor="middle" font-size="11" fill="#3a5e3a">단지</text>
+            <path d="M12,78 L90,78" stroke="#22bb66" stroke-width="7" stroke-linecap="round"/>
+            <path d="M102,78 L104,78 L104,44 L102,44" stroke="#22bb66" stroke-width="7" stroke-linecap="round" fill="none"/>
+            <path d="M208,78 L320,78" stroke="#ffaa00" stroke-width="7" stroke-linecap="round"/>
+            <path d="M102,160 L194,160" stroke="#ff4444" stroke-width="6" stroke-dasharray="9,6" stroke-linecap="round"/>
+            <circle cx="146" cy="83" r="8" fill="#D85A30" stroke="#fff" stroke-width="2"/>
+            <rect x="102" y="84" width="40" height="7" fill="#185FA5" rx="2"/>
+            <text x="122" y="91" text-anchor="middle" font-size="7" fill="#fff">🚒P</text>
+            <text x="188" y="72" font-size="8" fill="#7a4e00">갓길주차</text>
+            <text x="136" y="155" font-size="8" fill="#9a1a1a">전선 3.8m</text>
+          </svg>
+        </div>
+        <div class="card" style="padding:10px 14px;">
+          <div style="display:flex;gap:12px;font-size:11px;color:#888;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:4px;"><div style="width:14px;height:3px;background:#22bb66;border-radius:1px;"></div>가능</div>
+            <div style="display:flex;align-items:center;gap:4px;"><div style="width:14px;height:3px;background:#ffaa00;border-radius:1px;"></div>주의</div>
+            <div style="display:flex;align-items:center;gap:4px;"><div style="width:14px;height:0;border-top:3px dashed #ff4444;"></div>우회</div>
+          </div>
+          <div class="rrow"><div class="rdot" style="background:#22bb66;"></div><span>정문 진입로 6.0m</span><span class="bdg ok">가능</span></div>
+          <div class="rrow"><div class="rdot" style="background:#ffaa00;"></div><span>북측 갓길주차 08~22시</span><span class="bdg wn">주의</span></div>
+          <div class="rrow"><div class="rdot" style="background:#ff4444;"></div><span>후문 전선 3.8m</span><span class="bdg dg">우회</span></div>
+        </div>
+      </div>
+
+      <div id="nm" style="display:none;flex-direction:column;gap:10px;">
+        <div style="font-size:13px;color:#888;font-weight:600;">산 지형 — 국가지점번호</div>
+        <div class="grid-card">
+          <div class="grid-code">가나1234-5678</div>
+          <div class="grid-dist">현위치에서 230m · 가장 가까운 지점</div>
+        </div>
+        <div class="grid-card" style="background:#f0f7ff;">
+          <div class="grid-code" style="color:#185FA5;">가나1234-5699</div>
+          <div class="grid-dist">현위치에서 410m</div>
+        </div>
+        <div class="infob">국가지점번호는 산악 구조 시 정확한 위치 공유에 사용됩니다. 구조대원에게 위 번호를 전달하세요.</div>
+      </div>
+
+      <div id="nw" style="display:none;flex-direction:column;gap:10px;">
+        <div class="map-mock" style="height:200px;">
+          <svg viewBox="0 0 347 200">
+            <rect width="347" height="200" fill="#c8dff0"/>
+            <rect x="20" y="40" width="307" height="120" fill="#85b7eb" rx="6"/>
+            <text x="88" y="100" text-anchor="middle" font-size="13" font-weight="600" fill="#042C53">수심 3.2m</text>
+            <text x="174" y="115" text-anchor="middle" font-size="13" font-weight="600" fill="#042C53">수심 5.8m</text>
+            <text x="260" y="100" text-anchor="middle" font-size="13" font-weight="600" fill="#042C53">수심 2.1m</text>
+            <circle cx="30" cy="33" r="13" fill="#22bb66" stroke="#fff" stroke-width="2"/>
+            <text x="30" y="38" text-anchor="middle" font-size="10" fill="#fff">P</text>
+            <circle cx="317" cy="33" r="13" fill="#22bb66" stroke="#fff" stroke-width="2"/>
+            <text x="317" y="38" text-anchor="middle" font-size="10" fill="#fff">P</text>
+            <circle cx="174" cy="172" r="13" fill="#ffaa00" stroke="#fff" stroke-width="2"/>
+            <text x="174" y="177" text-anchor="middle" font-size="10" fill="#fff">P</text>
+          </svg>
+        </div>
+        <div class="card" style="padding:10px 14px;">
+          <div class="rrow"><div class="rdot" style="background:#22bb66;"></div><span>망원한강공원 북측 진입로</span><span class="bdg ok">가능</span></div>
+          <div class="rrow"><div class="rdot" style="background:#22bb66;"></div><span>망원한강공원 남측 진입로</span><span class="bdg ok">가능</span></div>
+          <div class="rrow"><div class="rdot" style="background:#ffaa00;"></div><span>동측 경사로</span><span class="bdg wn">경사 주의</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tb">
+      <div class="t on" onclick="go('sc-navi')"><i class="ti ti-car"></i><span>내비</span><div class="dot"></div></div>
+      <div class="t" onclick="go('sc-rv')"><i class="ti ti-camera"></i><span>로드뷰</span></div>
+      <div class="t" onclick="go('sc-pk')"><span class="tp">P</span><span>주차</span></div>
+      <div class="t" onclick="go('sc-hy')"><i class="ti ti-droplet"></i><span>소화전</span></div>
+      <div class="t" onclick="go('sc-ct')"><i class="ti ti-phone"></i><span>연락처</span></div>
+    </div>
+  </div>
+
+  <!-- 탭2: 로드뷰 -->
+  <div class="scr" id="sc-rv">
+    <div class="top"><span class="top-t">로드뷰</span><button onclick="go('sc-set')" style="background:none;border:none;cursor:pointer;padding:4px;"><i class="ti ti-menu-2" style="font-size:22px;color:#888;"></i></button></div>
+    <div class="body" style="padding:0;">
+      <div style="background:#1a2a1a;height:260px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;">
+        <button onclick="openPh()" style="position:absolute;top:14px;left:14px;width:42px;height:42px;background:#D85A30;border:none;border-radius:21px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+          <i class="ti ti-plus" style="font-size:22px;color:#fff;"></i>
+        </button>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);" id="rvaddr">그린파크 아파트 정문 앞</div>
+        <svg width="290" height="130" viewBox="0 0 290 130" style="border-radius:8px;">
+          <rect width="290" height="82" fill="#445544"/>
+          <rect y="82" width="290" height="48" fill="#334433"/>
+          <rect x="18" y="14" width="46" height="60" fill="#3a4e3a" rx="3"/>
+          <rect x="100" y="7" width="62" height="68" fill="#3a4e3a" rx="3"/>
+          <rect x="200" y="18" width="40" height="54" fill="#3a4e3a" rx="3"/>
+          <rect x="120" y="82" width="24" height="48" fill="#3a4e3a"/>
+          <line x1="0" y1="16" x2="290" y2="16" stroke="#556655" stroke-width="2"/>
+        </svg>
+        <div style="background:rgba(255,165,0,.85);border-radius:8px;padding:5px 14px;font-size:12px;color:#fff;font-weight:600;">실제 1층 = 도로에서 +1층 (약 3m 위)</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+          <div style="background:rgba(160,20,20,.8);color:#fff;font-size:11px;padding:4px 10px;border-radius:14px;">전선 3.8m</div>
+          <div style="background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:4px 10px;border-radius:14px;">도로폭 4.2m</div>
+          <div style="background:rgba(140,90,0,.8);color:#fff;font-size:11px;padding:4px 10px;border-radius:14px;">갓길주차</div>
+        </div>
+      </div>
+      <div style="padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:10px;">소방시설 사진</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="card" style="cursor:pointer;padding:10px;" onclick="openPh('옥내소화전')"><div style="font-size:13px;font-weight:600;color:#111;">옥내소화전</div><div style="font-size:11px;color:#888;margin-top:2px;">사진 2장</div></div>
+          <div class="card" style="cursor:pointer;padding:10px;" onclick="openPh('방화문')"><div style="font-size:13px;font-weight:600;color:#111;">방화문</div><div style="font-size:11px;color:#888;margin-top:2px;">사진 3장</div></div>
+          <div class="card" style="cursor:pointer;padding:10px;" onclick="openPh('스프링클러')"><div style="font-size:13px;font-weight:600;color:#111;">스프링클러</div><div style="font-size:11px;color:#888;margin-top:2px;">사진 1장</div></div>
+          <div class="card" style="cursor:pointer;padding:10px;" onclick="openPh('건물설계도면')"><div style="font-size:13px;font-weight:600;color:#111;">건물설계도면</div><div style="font-size:11px;color:#888;margin-top:2px;">사진 1장</div></div>
+          <div class="card" style="cursor:pointer;padding:10px;" onclick="openPh('옥상사진')"><div style="font-size:13px;font-weight:600;color:#111;">옥상사진</div><div style="font-size:11px;color:#888;margin-top:2px;">사진 2장</div></div>
+          <div class="card" style="cursor:pointer;padding:10px;" onclick="openPh('대피로')"><div style="font-size:13px;font-weight:600;color:#111;">대피로</div><div style="font-size:11px;color:#888;margin-top:2px;">사진 0장</div></div>
+        </div>
+        <div style="background:#FAEEDA;border-radius:10px;padding:10px 12px;font-size:11px;color:#7a4e00;margin-top:10px;line-height:1.8;">누구나 업로드 가능 · 하루 20장 제한 · 신고 후 24시간 자동 삭제</div>
+      </div>
+    </div>
+    <div class="tb">
+      <div class="t" onclick="go('sc-navi')"><i class="ti ti-car"></i><span>내비</span></div>
+      <div class="t on" onclick="go('sc-rv')"><i class="ti ti-camera" style="color:#D85A30;"></i><span>로드뷰</span><div class="dot"></div></div>
+      <div class="t" onclick="go('sc-pk')"><span class="tp">P</span><span>주차</span></div>
+      <div class="t" onclick="go('sc-hy')"><i class="ti ti-droplet"></i><span>소화전</span></div>
+      <div class="t" onclick="go('sc-ct')"><i class="ti ti-phone"></i><span>연락처</span></div>
+    </div>
+    <div class="phm" id="phm">
+      <div class="top">
+        <button onclick="closePh()" style="background:none;border:none;cursor:pointer;padding:4px;"><i class="ti ti-arrow-left" style="font-size:22px;color:#D85A30;"></i></button>
+        <span class="top-t" id="phtitle">소방시설 사진</span>
+        <button onclick="alert('사진 업로드는 실제 앱에서 사용 가능합니다')" style="background:#D85A30;border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">추가</button>
+      </div>
+      <div style="padding:10px 14px;font-size:13px;color:#888;" id="phbld">그린파크 아파트</div>
+      <div class="phgrid">
+        <div class="phcard"><i class="ti ti-photo"></i><span>B1 소화전함</span><div style="position:absolute;top:4px;right:4px;background:#FCEBEB;border-radius:4px;padding:1px 4px;font-size:9px;color:#A32D2D;">신고1</div></div>
+        <div class="phcard"><i class="ti ti-photo"></i><span>1층 로비</span></div>
+        <div class="phcard"><i class="ti ti-photo"></i><span>3층 복도</span></div>
+        <div class="phadd" onclick="alert('사진 업로드는 실제 앱에서 사용 가능합니다')"><i class="ti ti-plus"></i><span>사진 추가</span></div>
+      </div>
+      <div style="padding:0 14px;"><div style="background:#FAEEDA;border-radius:10px;padding:10px 12px;font-size:11px;color:#7a4e00;line-height:1.8;">누구나 업로드 · 하루 20장 제한 · 신고 후 24시간 자동 삭제</div></div>
+    </div>
+  </div>
+
+  <!-- 탭3: 주차 -->
+  <div class="scr" id="sc-pk">
+    <div class="top"><span class="top-t">소방차 주차구역</span><button onclick="go('sc-set')" style="background:none;border:none;cursor:pointer;padding:4px;"><i class="ti ti-menu-2" style="font-size:22px;color:#888;"></i></button></div>
+    <div class="body">
+      <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:12px;" id="pk-name">그린파크 아파트</div>
+      <div class="card" style="background:#fff0f0;border-color:#F09595;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:700;color:#9a1a1a;margin-bottom:5px;">🅿 지하주차장</div>
+        <div style="font-size:13px;color:#9a1a1a;">진입구 높이 2.3m · 내 차량 3.6m<br>❌ 진입 불가 — 2.3m 이하 차량만 가능</div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#185FA5;margin-bottom:8px;">🚒 소방차 전용 주차구역</div>
+      <div class="card"><div class="crow"><div class="rdot" style="background:#22bb66;"></div><div class="cb"><div class="ct">101동 앞</div><div class="cs">전용 2면</div></div><span class="bdg ok">가능</span></div></div>
+      <div class="card"><div class="crow"><div class="rdot" style="background:#22bb66;"></div><div class="cb"><div class="ct">102동 앞</div><div class="cs">전용 2면</div></div><span class="bdg ok">가능</span></div></div>
+      <div class="card"><div class="crow"><div class="rdot" style="background:#ff4444;"></div><div class="cb"><div class="ct">103동 앞</div><div class="cs">전선 간섭</div></div><span class="bdg dg">불가</span></div></div>
+      <div style="font-size:13px;font-weight:700;color:#555;margin:12px 0 8px;">단지 출입로</div>
+      <div class="card" style="padding:10px 14px;">
+        <div class="rrow"><div class="rdot" style="background:#22bb66;"></div><span>정문 → 101~103동 (6.0m)</span><span class="bdg ok">가능</span></div>
+        <div class="rrow"><div class="rdot" style="background:#ffaa00;"></div><span>북측 갓길주차 08~22시</span><span class="bdg wn">주의</span></div>
+        <div class="rrow"><div class="rdot" style="background:#ff4444;"></div><span>후문 골목 전선 3.8m</span><span class="bdg dg">우회</span></div>
+      </div>
+    </div>
+    <div class="tb">
+      <div class="t" onclick="go('sc-navi')"><i class="ti ti-car"></i><span>내비</span></div>
+      <div class="t" onclick="go('sc-rv')"><i class="ti ti-camera"></i><span>로드뷰</span></div>
+      <div class="t on" onclick="go('sc-pk')"><span class="tp" style="color:#D85A30;">P</span><span>주차</span><div class="dot"></div></div>
+      <div class="t" onclick="go('sc-hy')"><i class="ti ti-droplet"></i><span>소화전</span></div>
+      <div class="t" onclick="go('sc-ct')"><i class="ti ti-phone"></i><span>연락처</span></div>
+    </div>
+  </div>
+
+  <!-- 탭4: 소화전 -->
+  <div class="scr" id="sc-hy">
+    <div class="top"><span class="top-t">주변 소화전 (1km)</span><button onclick="go('sc-set')" style="background:none;border:none;cursor:pointer;padding:4px;"><i class="ti ti-menu-2" style="font-size:22px;color:#888;"></i></button></div>
+    <div class="body">
+      <div style="font-size:12px;color:#888;margin-bottom:10px;">📍 반경 1km 내 소화전 4개</div>
+      <div class="card"><div class="crow"><div class="ico" style="background:#FCEBEB;"><i class="ti ti-droplet" style="font-size:18px;color:#A32D2D;"></i></div><div class="cb"><div class="ct">녹번동 12 앞 (지상)</div><div class="cs">지상 소화전</div></div><div style="text-align:right;"><div style="font-size:22px;font-weight:700;color:#A32D2D;">85</div><div style="font-size:10px;color:#aaa;">m</div></div></div></div>
+      <div class="card"><div class="crow"><div class="ico" style="background:#FCEBEB;"><i class="ti ti-droplet" style="font-size:18px;color:#A32D2D;"></i></div><div class="cb"><div class="ct">응암로 34 교차로 (지상)</div><div class="cs">지상 소화전</div></div><div style="text-align:right;"><div style="font-size:22px;font-weight:700;color:#A32D2D;">95</div><div style="font-size:10px;color:#aaa;">m</div></div></div></div>
+      <div class="card"><div class="crow"><div class="ico" style="background:#FAEEDA;"><i class="ti ti-droplet" style="font-size:18px;color:#854F0B;"></i></div><div class="cb"><div class="ct">녹번역 1번출구 (지하)</div><div class="cs">지하 소화전</div></div><div style="text-align:right;"><div style="font-size:22px;font-weight:700;color:#854F0B;">380</div><div style="font-size:10px;color:#aaa;">m</div></div></div></div>
+      <div class="card"><div class="crow"><div class="ico" style="background:#FAEEDA;"><i class="ti ti-droplet" style="font-size:18px;color:#854F0B;"></i></div><div class="cb"><div class="ct">은평구청 앞 (지상)</div><div class="cs">지상 소화전</div></div><div style="text-align:right;"><div style="font-size:22px;font-weight:700;color:#854F0B;">720</div><div style="font-size:10px;color:#aaa;">m</div></div></div></div>
+      <div class="infob">소화전 위치는 국가화재정보시스템 데이터 기준입니다. 실제 위치와 다를 수 있으니 현장 확인 바랍니다.</div>
+    </div>
+    <div class="tb">
+      <div class="t" onclick="go('sc-navi')"><i class="ti ti-car"></i><span>내비</span></div>
+      <div class="t" onclick="go('sc-rv')"><i class="ti ti-camera"></i><span>로드뷰</span></div>
+      <div class="t" onclick="go('sc-pk')"><span class="tp">P</span><span>주차</span></div>
+      <div class="t on" onclick="go('sc-hy')"><i class="ti ti-droplet" style="color:#D85A30;"></i><span>소화전</span><div class="dot"></div></div>
+      <div class="t" onclick="go('sc-ct')"><i class="ti ti-phone"></i><span>연락처</span></div>
+    </div>
+  </div>
+
+  <!-- 탭5: 연락처 -->
+  <div class="scr" id="sc-ct">
+    <div class="top"><span class="top-t">관련 연락처</span><button onclick="go('sc-set')" style="background:none;border:none;cursor:pointer;padding:4px;"><i class="ti ti-menu-2" style="font-size:22px;color:#888;"></i></button></div>
+    <div class="body">
+      <div style="font-size:12px;font-weight:700;color:#888;margin-bottom:8px;">관리 / 사무</div>
+      <div class="card"><div class="crow"><div class="ico" style="background:#E6F1FB;"><i class="ti ti-building" style="font-size:18px;color:#185FA5;"></i></div><div class="cb"><div class="ct">관리사무소</div><div class="cs" style="color:#185FA5;">02-123-4567</div></div><button class="cbtn" style="background:#22bb66;" onclick="alert('📞 02-123-4567 전화 연결')">전화</button></div></div>
+      <div class="card"><div class="crow"><div class="ico" style="background:#E1F5EE;"><i class="ti ti-shield" style="font-size:18px;color:#0F6E56;"></i></div><div class="cb"><div class="ct">경비실</div><div class="cs" style="color:#185FA5;">02-123-4568</div></div><button class="cbtn" style="background:#22bb66;" onclick="alert('📞 02-123-4568 전화 연결')">전화</button></div></div>
+      <div class="card"><div class="crow"><div class="ico" style="background:#FAEEDA;"><i class="ti ti-bolt" style="font-size:18px;color:#854F0B;"></i></div><div class="cb"><div class="ct">한국전력 은평지사</div><div class="cs" style="color:#185FA5;">123</div></div><button class="cbtn" style="background:#22bb66;" onclick="alert('📞 123 전화 연결')">전화</button></div></div>
+      <div style="font-size:12px;font-weight:700;color:#A32D2D;margin:14px 0 8px;">🏥 반경 40km 내 응급실</div>
+      <div class="card" style="border-color:#F09595;">
+        <div class="crow" style="margin-bottom:10px;">
+          <div style="width:30px;height:30px;background:#FCEBEB;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#A32D2D;flex-shrink:0;">1</div>
+          <div class="cb"><div class="ct">은평성모병원 응급실</div><div class="cs" style="color:#A32D2D;">02-2030-4119</div><div class="cs">은평구 통일로 1021</div></div>
+          <div style="text-align:right;"><div style="font-size:20px;font-weight:700;color:#A32D2D;">2.1</div><div style="font-size:10px;color:#aaa;">km</div></div>
+        </div>
+        <button class="erbtn" onclick="alert('📞 은평성모병원 응급실 02-2030-4119 전화 연결')">📞 응급실 바로 전화</button>
+      </div>
+      <div class="card">
+        <div class="crow" style="margin-bottom:10px;">
+          <div style="width:30px;height:30px;background:#FAEEDA;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#854F0B;flex-shrink:0;">2</div>
+          <div class="cb"><div class="ct">서울적십자병원 응급실</div><div class="cs" style="color:#A32D2D;">02-2002-8119</div></div>
+          <div style="text-align:right;"><div style="font-size:20px;font-weight:700;color:#555;">5.8</div><div style="font-size:10px;color:#aaa;">km</div></div>
+        </div>
+        <button class="erbtn" onclick="alert('📞 서울적십자병원 02-2002-8119 전화 연결')">📞 응급실 바로 전화</button>
+      </div>
+      <div class="infob">응급실 정보는 공공데이터포털 API 기준 · 생명이 위급한 경우 119로 신고하세요.</div>
+    </div>
+    <div class="tb">
+      <div class="t" onclick="go('sc-navi')"><i class="ti ti-car"></i><span>내비</span></div>
+      <div class="t" onclick="go('sc-rv')"><i class="ti ti-camera"></i><span>로드뷰</span></div>
+      <div class="t" onclick="go('sc-pk')"><span class="tp">P</span><span>주차</span></div>
+      <div class="t" onclick="go('sc-hy')"><i class="ti ti-droplet"></i><span>소화전</span></div>
+      <div class="t on" onclick="go('sc-ct')"><i class="ti ti-phone" style="color:#D85A30;"></i><span>연락처</span><div class="dot"></div></div>
+    </div>
+  </div>
+
+  <!-- 설정 -->
+  <div class="scr" id="sc-set">
+    <div class="top">
+      <button onclick="go(prev)" style="background:none;border:none;cursor:pointer;padding:4px;"><i class="ti ti-arrow-left" style="font-size:22px;color:#D85A30;"></i></button>
+      <span class="top-t">설정</span>
+    </div>
+    <div class="body" style="padding:0;background:#f5f5f5;">
+      <div class="vsub">차량</div>
+      <div class="strow" onclick="showVP()">
+        <div class="sticon" id="vi-ico">🚒</div>
+        <div class="stb"><div class="stl">차량 종류</div><div class="sts" id="vi-sub">펌프차 · 높이 3.6m</div></div>
+        <div style="font-size:20px;color:#ccc;">›</div>
+      </div>
+      <div class="vsub">화면</div>
+      <div class="strow"><div class="sticon">🌙</div><div class="stb"><div class="stl">야간 모드</div><div class="sts">어두운 화면으로 전환</div></div><div class="tog" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">🌓</div><div class="stb"><div class="stl">야간 자동 전환</div><div class="sts">일몰 후 자동으로 야간 모드</div></div><div class="tog" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">🔤</div><div class="stb"><div class="stl">글자 크기</div><div class="sts">보통</div></div><div style="font-size:16px;color:#ccc;">›</div></div>
+      <div class="vsub">앱 권한</div>
+      <div class="strow"><div class="sticon">📍</div><div class="stb"><div class="stl">위치</div><div class="sts">현재 위치 기반 검색</div></div><div class="tog on" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">📷</div><div class="stb"><div class="stl">카메라</div><div class="sts">현장 사진 촬영</div></div><div class="tog on" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">🎤</div><div class="stb"><div class="stl">마이크</div><div class="sts">음성 주소 입력</div></div><div class="tog on" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">🖼</div><div class="stb"><div class="stl">사진 및 동영상</div><div class="sts">사진 저장 및 불러오기</div></div><div class="tog on" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">🔊</div><div class="stb"><div class="stl">음악 및 오디오</div><div class="sts">음성 안내 출력</div></div><div class="tog on" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">🔔</div><div class="stb"><div class="stl">알림</div><div class="sts">출동 구역 업데이트 알림</div></div><div class="tog on" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">📡</div><div class="stb"><div class="stl">근처 기기</div><div class="sts">블루투스 연동 기기</div></div><div class="tog" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="vsub">데이터</div>
+      <div class="strow"><div class="sticon">📴</div><div class="stb"><div class="stl">오프라인 모드</div><div class="sts">저장된 데이터로만 동작</div></div><div class="tog" onclick="this.classList.toggle('on')"><div class="tok"></div></div></div>
+      <div class="strow"><div class="sticon">☁️</div><div class="stb"><div class="stl">데이터 동기화</div><div class="sts">팀 전체 공유 DB 업데이트</div></div><div style="font-size:20px;color:#ccc;">›</div></div>
+      <div class="vsub">앱 정보</div>
+      <div class="strow"><div class="sticon">ℹ️</div><div class="stb"><div class="stl">앱 버전</div></div><div style="font-size:13px;color:#aaa;">v4.0.0</div></div>
+      <div style="height:30px;"></div>
+    </div>
+    <div id="vp" style="display:none;position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:16px;box-shadow:0 -4px 20px rgba(0,0,0,.15);z-index:20;">
+      <div style="font-size:15px;font-weight:700;color:#111;text-align:center;margin-bottom:14px;">차량 종류 선택</div>
+      <div id="vl" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+      <button onclick="closeVP()" style="width:100%;padding:13px;background:#f5f5f5;border:1px solid #eee;border-radius:12px;font-size:15px;color:#888;cursor:pointer;">취소</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var prev='sc-navi', cur='sc-navi';
+var v={type:'펌프차',emoji:'🚒',h:3.6,w:2.5};
+var rec=['그린파크 아파트','북한산 산 12-3','한강 망원지구'];
+var lisT=null;
+var VLIST=[
+  {type:'펌프차',emoji:'🚒',h:3.6,w:2.5},
+  {type:'물탱크차',emoji:'🚛',h:3.8,w:2.6},
+  {type:'굴절차',emoji:'🏗',h:3.9,w:2.6},
+  {type:'공작차',emoji:'🔧',h:3.4,w:2.4},
+  {type:'구급차',emoji:'🚑',h:2.8,w:2.2},
+  {type:'직접입력',emoji:'✏️',h:3.6,w:2.5},
+];
+
+function go(id){
+  if(id!=='sc-set') prev=id;
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  cur=id;
+  if(id==='sc-navi'){
+    document.getElementById('nh').style.display='flex';
+    document.getElementById('nr').style.display='none';
+    document.getElementById('nm').style.display='none';
+    document.getElementById('nw').style.display='none';
+    rr();
+  }
+}
+
+function dt(a){
+  if(/산\s*\d|임야|북한산|도봉|관악|설악|지리/.test(a)) return 'mountain';
+  if(/강|하천|저수지|한강|낙동강|호수/.test(a)) return 'water';
+  return 'normal';
+}
+
+function qi_fn(){
+  var val=document.getElementById('qi').value.trim();
+  document.getElementById('gb').style.display=val?'block':'none';
+}
+
+function ds(){
+  var q=document.getElementById('qi').value.trim();
+  if(!q) return;
+  if(rec.indexOf(q)<0) rec.unshift(q);
+  rec=rec.slice(0,5);
+  var t=dt(q);
+  document.getElementById('nh').style.display='none';
+  document.getElementById('nr').style.display=t==='normal'?'flex':'none';
+  document.getElementById('nm').style.display=t==='mountain'?'flex':'none';
+  document.getElementById('nw').style.display=t==='water'?'flex':'none';
+  document.getElementById('rvaddr').textContent=q+' 정문 앞';
+  document.getElementById('vbt').textContent=v.type+' · 높이 '+v.h+'m · 폭 '+v.w+'m';
+  if(document.getElementById('pk-name')) document.getElementById('pk-name').textContent=q;
+}
+
+function rr(){
+  var el=document.getElementById('rl');
+  el.innerHTML='';
+  rec.forEach(function(a){
+    var d=document.createElement('div');
+    d.className='ri';
+    d.innerHTML='<i class="ti ti-clock"></i><span>'+a+'</span><span style="font-size:18px;color:#ccc;">›</span>';
+    d.onclick=function(){document.getElementById('qi').value=a;qi_fn();ds();};
+    el.appendChild(d);
+  });
+}
+
+function tm(){
+  var btn=document.getElementById('mb');
+  var lb=document.getElementById('lb');
+  if(lisT){clearTimeout(lisT);lisT=null;btn.classList.remove('on');lb.style.display='none';return;}
+  btn.classList.add('on');
+  lb.style.display='block';
+  var samples=['그린파크 아파트','북한산 산 12-3','한강 망원지구'];
+  lisT=setTimeout(function(){
+    var pick=samples[Math.floor(Math.random()*samples.length)];
+    document.getElementById('qi').value=pick;
+    qi_fn(); ds();
+    btn.classList.remove('on'); lb.style.display='none'; lisT=null;
+  },2200);
+}
+
+function openPh(cat){
+  document.getElementById('phtitle').textContent=(cat||'소방시설')+' 사진';
+  document.getElementById('phm').classList.add('on');
+}
+function closePh(){document.getElementById('phm').classList.remove('on');}
+
+function showVP(){
+  var el=document.getElementById('vl');
+  el.innerHTML='';
+  VLIST.forEach(function(item){
+    var btn=document.createElement('button');
+    var sel=item.type===v.type;
+    btn.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 14px;background:'+(sel?'#FAECE7':'#f8f8f8')+';border:1px solid '+(sel?'#D85A30':'#eee')+';border-radius:10px;cursor:pointer;width:100%;';
+    btn.innerHTML='<span style="font-size:24px;">'+item.emoji+'</span><div style="flex:1;text-align:left;"><div style="font-size:14px;font-weight:600;color:'+(sel?'#D85A30':'#111')+';">'+item.type+'</div><div style="font-size:12px;color:#888;">높이 '+item.h+'m · 폭 '+item.w+'m</div></div>'+(sel?'<i class="ti ti-check" style="font-size:18px;color:#D85A30;"></i>':'');
+    btn.onclick=function(){
+      v=item;
+      document.getElementById('vi-ico').textContent=item.emoji;
+      document.getElementById('vi-sub').textContent=item.type+' · 높이 '+item.h+'m';
+      document.getElementById('vbt').textContent=item.type+' · 높이 '+item.h+'m · 폭 '+item.w+'m';
+      closeVP();
+    };
+    el.appendChild(btn);
+  });
+  document.getElementById('vp').style.display='block';
+}
+function closeVP(){document.getElementById('vp').style.display='none';}
+
+rr();
+</script>
+</body>
+</html>
